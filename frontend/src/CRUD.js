@@ -3,12 +3,14 @@ import Table from 'react-bootstrap/Table';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
-import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
 import {Container} from "react-bootstrap";
+import axios from "axios";
+import {ToastContainer, toast} from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css'
 
 const CRUD = () => {
-    const empData = [
+    /*const empData = [
         {
             id: 1,
             name: 'Chavindu',
@@ -27,25 +29,36 @@ const CRUD = () => {
             age: 23,
             isActive: 'No'
         }
-    ]
+    ]*/
 
     const [data, setData] = useState([]);
     const [show, setShow] = useState(false);
 
     const [name, setName] = useState('');
     const [age, setAge] = useState('');
-    const [isActive, setIsActive] = useState(0);
+    const [isActive, setIsActive] = useState('No');
 
     const [editName, setEditName] = useState('');
     const [editAge, setEditAge] = useState('');
-    const [editIsActive, setEditIsActive] = useState(0);
+    const [editIsActive, setEditIsActive] = useState('No');
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
     useEffect(() => {
-        setData(empData);
+        // setData(empData);
+        getData();
     }, [])
+
+    const getData = () => {
+        axios.get('https://localhost:7033/api/Employee')
+            .then((result) => {
+                setData(result.data);
+            })
+            .catch((error) => {
+                console.log(error);
+            })
+    }
 
     const handleEdit = (id) => {
         handleShow();
@@ -61,27 +74,71 @@ const CRUD = () => {
         handleShow();
     }
 
+    const handleSave = () => {
+        const url = 'https://localhost:7033/api/Employee';
+        const data = {
+            "name": name,
+            "age": age,
+            "isActive": isActive
+        }
+        axios.post(url, data)
+            .then((result) => {
+                getData();
+                clearFields();
+                toast.success('Employee Saved Successfully !');
+            })
+    }
+
+    const clearFields = () => {
+        setName('');
+        setAge('');
+        setIsActive('No')
+        setEditName('');
+        setEditAge('');
+        setEditIsActive('No');
+    }
+
+    const handleActiveChange = (e) => {
+        if (e.target.checked) {
+            setIsActive('Yes');
+        } else {
+            setIsActive('No');
+        }
+    }
+
+    const handleEditActiveChange = (e) => {
+        if (e.target.checked) {
+            setEditIsActive('Yes');
+        } else {
+            setEditIsActive('No');
+        }
+    }
 
     return (
         <Fragment>
+            <ToastContainer/>
             <Container className="flex flex-wrap w-25 mb-5 mt-5">
                 <h3 className="mb-2">Employee Form</h3>
                 <Col className="mb-2">
-                    <input type="text" className="form-control" placeholder="Enter Name" value={name} onChange={(e)=>{setName(e.target.value)}}/>
+                    <input type="text" className="form-control" placeholder="Enter Name" value={name} onChange={(e) => {
+                        setName(e.target.value)
+                    }}/>
                 </Col>
                 <Col className="mb-2">
-                    <input type="text" className="form-control" placeholder="Enter Age" value={age} onChange={(e)=>{setAge(e.target.value)}}/>
+                    <input type="text" className="form-control" placeholder="Enter Age" value={age} onChange={(e) => {
+                        setAge(e.target.value)
+                    }}/>
                 </Col>
                 <Col className="flex flex-row mb-2">
                     <input type="checkbox"
-                           checked={isActive === 0 ? true : false}
-                           onChange={(e)=> setIsActive(e)}
+                           checked={isActive === 'Yes' ? true : false}
+                           onChange={(e) => handleActiveChange(e)}
                            value={isActive}
                     />
                     <label>IsActive</label>
                 </Col>
                 <Col>
-                    <button className="btn btn-outline-primary">Submit</button>
+                    <button className="btn btn-outline-primary" onClick={() => handleSave()}>Submit</button>
                 </Col>
             </Container>
             <Table striped bordered hover className="w-75 flex m-auto justify-content-center align-content-center">
@@ -127,15 +184,21 @@ const CRUD = () => {
                 </Modal.Header>
                 <Modal.Body className="w-75 flex m-auto justify-content-center align-content-center">
                     <Col className="mb-2">
-                        <input type="text" className="form-control" placeholder="Enter Name" value={editName} onChange={(e)=>{setEditName(e.target.value)}}/>
+                        <input type="text" className="form-control" placeholder="Enter Name" value={editName}
+                               onChange={(e) => {
+                                   setEditName(e.target.value)
+                               }}/>
                     </Col>
                     <Col className="mb-2">
-                        <input type="text" className="form-control" placeholder="Enter Age" value={editAge} onChange={(e)=>{setEditAge(e.target.value)}}/>
+                        <input type="text" className="form-control" placeholder="Enter Age" value={editAge}
+                               onChange={(e) => {
+                                   setEditAge(e.target.value)
+                               }}/>
                     </Col>
                     <Col className="flex flex-row mb-2">
                         <input type="checkbox"
-                               checked={editIsActive === 0 ? true : false}
-                               onChange={(e)=> setEditIsActive(e)}
+                               checked={editIsActive === 'Yes' ? true : false}
+                               onChange={(e) => handleEditActiveChange(e)}
                                value={editIsActive}
                         />
                         <label>IsActive</label>
