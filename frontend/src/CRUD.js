@@ -66,7 +66,15 @@ const CRUD = () => {
 
     const handleDelete = (id) => {
         if (window.confirm("Are you sure to delete this employee") === true) {
-            alert(id);
+            axios.delete(`https://localhost:7033/api/Employee/${id}`)
+                .then((result) => {
+                    if (result.status === 200) {
+                        toast.success('Employee Deleted Successfully !');
+                        getData();
+                    }
+                }).catch((error) => {
+                toast.success('Employee Deleted Failed !',error);
+            })
         }
     }
 
@@ -86,7 +94,9 @@ const CRUD = () => {
                 getData();
                 clearFields();
                 toast.success('Employee Saved Successfully !');
-            })
+            }).catch((error) => {
+            toast.success('Employee Saved Failed !',error);
+        })
     }
 
     const clearFields = () => {
