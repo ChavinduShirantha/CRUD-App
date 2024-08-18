@@ -8,6 +8,6 @@
 
         public string? Age { get; set; }
 
-        public int IsActive { get; set; }
+        public string? IsActive { get; set; }
     }
 }
