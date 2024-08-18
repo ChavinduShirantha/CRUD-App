@@ -41,6 +41,7 @@ const CRUD = () => {
     const [editName, setEditName] = useState('');
     const [editAge, setEditAge] = useState('');
     const [editIsActive, setEditIsActive] = useState('No');
+    const [editId, setEditId] = useState(0);
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
@@ -62,6 +63,16 @@ const CRUD = () => {
 
     const handleEdit = (id) => {
         handleShow();
+        axios.get(`https://localhost:7033/api/Employee/${id}`)
+            .then((result) => {
+                setEditName(result.data.name)
+                setEditAge(result.data.age)
+                setEditIsActive(result.data.isActive)
+                setEditId(id)
+            })
+            .catch((error) => {
+                console.log(error);
+            })
     }
 
     const handleDelete = (id) => {
@@ -73,13 +84,28 @@ const CRUD = () => {
                         getData();
                     }
                 }).catch((error) => {
-                toast.success('Employee Deleted Failed !',error);
+                toast.success('Employee Deleted Failed !', error);
             })
         }
     }
 
-    const handleUpdate = (id) => {
-        handleShow();
+    const handleUpdate = () => {
+        const url = `https://localhost:7033/api/Employee/${editId}`;
+        const data = {
+            "id": editId,
+            "name": editName,
+            "age": editAge,
+            "isActive": editIsActive
+        }
+        axios.put(url, data)
+            .then((result) => {
+                getData();
+                clearFields();
+                toast.success('Employee Updated Successfully !');
+                handleClose();
+            }).catch((error) => {
+            toast.success('Employee Updated Failed !', error);
+        })
     }
 
     const handleSave = () => {
@@ -95,7 +121,7 @@ const CRUD = () => {
                 clearFields();
                 toast.success('Employee Saved Successfully !');
             }).catch((error) => {
-            toast.success('Employee Saved Failed !',error);
+            toast.success('Employee Saved Failed !', error);
         })
     }
 
